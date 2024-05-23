@@ -26,22 +26,7 @@ public class WorldResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCountries() {
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Country country : world.getAllCountries()) {
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("code", country.getCode())
-                    .add("iso3", country.getIso3())
-                    .add("name", country.getName())
-                    .add("continent", country.getContinent())
-                    .add("capital", country.getCapital())
-                    .add("region", country.getRegion())
-                    .add("surface", country.getSurface())
-                    .add("population", country.getPopulation())
-                    .add("government", country.getGovernment())
-                    .add("lat", country.getLatitude())
-                    .add("lng", country.getLongitude());
-            jab.add(job);
-        }
+        JsonArrayBuilder jab = buildCountryArray(world.getAllCountries());
         return Response.ok(jab.build().toString()).build();
     }
 
@@ -53,18 +38,7 @@ public class WorldResource {
         if (country == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        JsonObjectBuilder job = Json.createObjectBuilder();
-        job.add("code", country.getCode())
-                .add("iso3", country.getIso3())
-                .add("name", country.getName())
-                .add("continent", country.getContinent())
-                .add("capital", country.getCapital())
-                .add("region", country.getRegion())
-                .add("surface", country.getSurface())
-                .add("population", country.getPopulation())
-                .add("government", country.getGovernment())
-                .add("lat", country.getLatitude())
-                .add("lng", country.getLongitude());
+        JsonObjectBuilder job = buildCountryObject(country);
         return Response.ok(job.build().toString()).build();
     }
 
@@ -72,23 +46,7 @@ public class WorldResource {
     @Path("/largestsurfaces")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLargestSurfaces() {
-        List<Country> countries = world.get10LargestSurfaces();
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Country country : countries) {
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("code", country.getCode())
-                    .add("iso3", country.getIso3())
-                    .add("name", country.getName())
-                    .add("continent", country.getContinent())
-                    .add("capital", country.getCapital())
-                    .add("region", country.getRegion())
-                    .add("surface", country.getSurface())
-                    .add("population", country.getPopulation())
-                    .add("government", country.getGovernment())
-                    .add("lat", country.getLatitude())
-                    .add("lng", country.getLongitude());
-            jab.add(job);
-        }
+        JsonArrayBuilder jab = buildCountryArray(world.get10LargestSurfaces());
         return Response.ok(jab.build().toString()).build();
     }
 
@@ -96,23 +54,7 @@ public class WorldResource {
     @Path("/largestpopulations")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLargestPopulations() {
-        List<Country> countries = world.get10LargestPopulations();
-        JsonArrayBuilder jab = Json.createArrayBuilder();
-        for (Country country : countries) {
-            JsonObjectBuilder job = Json.createObjectBuilder();
-            job.add("code", country.getCode())
-                    .add("iso3", country.getIso3())
-                    .add("name", country.getName())
-                    .add("continent", country.getContinent())
-                    .add("capital", country.getCapital())
-                    .add("region", country.getRegion())
-                    .add("surface", country.getSurface())
-                    .add("population", country.getPopulation())
-                    .add("government", country.getGovernment())
-                    .add("lat", country.getLatitude())
-                    .add("lng", country.getLongitude());
-            jab.add(job);
-        }
+        JsonArrayBuilder jab = buildCountryArray(world.get10LargestPopulations());
         return Response.ok(jab.build().toString()).build();
     }
 
@@ -131,9 +73,9 @@ public class WorldResource {
             String region = jsonObject.getString("region");
             double surface = Double.parseDouble(jsonObject.getString("surface"));
             int population = Integer.parseInt(jsonObject.getString("population"));
-            String government = jsonObject.getString("government");
             double latitude = Double.parseDouble(jsonObject.getString("latitude"));
             double longitude = Double.parseDouble(jsonObject.getString("longitude"));
+            String government = jsonObject.getString("government");
 
             boolean added = world.addCountry(code, iso3, name, capital, continent, region, surface, population, government, latitude, longitude);
 
@@ -145,10 +87,37 @@ public class WorldResource {
                 responseBuilder.add("message", "Country with the same code already exists.");
                 return Response.status(Response.Status.CONFLICT).entity(responseBuilder.build().toString()).build();
             }
+        } catch (NumberFormatException e) {
+            JsonObjectBuilder responseBuilder = Json.createObjectBuilder();
+            responseBuilder.add("message", "Invalid number format: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(responseBuilder.build().toString()).build();
         } catch (Exception e) {
             JsonObjectBuilder responseBuilder = Json.createObjectBuilder();
             responseBuilder.add("message", "Failed to add country: " + e.getMessage());
             return Response.status(Response.Status.BAD_REQUEST).entity(responseBuilder.build().toString()).build();
         }
+    }
+
+    private JsonArrayBuilder buildCountryArray(List<Country> countries) {
+        JsonArrayBuilder jab = Json.createArrayBuilder();
+        for (Country country : countries) {
+            jab.add(buildCountryObject(country));
+        }
+        return jab;
+    }
+
+    private JsonObjectBuilder buildCountryObject(Country country) {
+        return Json.createObjectBuilder()
+                .add("code", country.getCode())
+                .add("iso3", country.getIso3())
+                .add("name", country.getName())
+                .add("continent", country.getContinent())
+                .add("capital", country.getCapital())
+                .add("region", country.getRegion())
+                .add("surface", country.getSurface())
+                .add("population", country.getPopulation())
+                .add("government", country.getGovernment())
+                .add("lat", country.getLatitude())
+                .add("lng", country.getLongitude());
     }
 }
