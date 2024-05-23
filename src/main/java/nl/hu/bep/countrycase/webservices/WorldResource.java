@@ -6,6 +6,11 @@ import nl.hu.bep.countrycase.model.Country;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
+import java.io.StringReader;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -109,5 +114,41 @@ public class WorldResource {
             jab.add(job);
         }
         return Response.ok(jab.build().toString()).build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addCountry(String jsonBody) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonBody))) {
+            JsonObject jsonObject = jsonReader.readObject();
+
+            String code = jsonObject.getString("code");
+            String iso3 = jsonObject.getString("iso3");
+            String name = jsonObject.getString("name");
+            String capital = jsonObject.getString("capital");
+            String continent = jsonObject.getString("continent");
+            String region = jsonObject.getString("region");
+            double surface = Double.parseDouble(jsonObject.getString("surface"));
+            int population = Integer.parseInt(jsonObject.getString("population"));
+            String government = jsonObject.getString("government");
+            double latitude = Double.parseDouble(jsonObject.getString("latitude"));
+            double longitude = Double.parseDouble(jsonObject.getString("longitude"));
+
+            boolean added = world.addCountry(code, iso3, name, capital, continent, region, surface, population, government, latitude, longitude);
+
+            JsonObjectBuilder responseBuilder = Json.createObjectBuilder();
+            if (added) {
+                responseBuilder.add("message", "Country added successfully.");
+                return Response.ok(responseBuilder.build().toString()).build();
+            } else {
+                responseBuilder.add("message", "Country with the same code already exists.");
+                return Response.status(Response.Status.CONFLICT).entity(responseBuilder.build().toString()).build();
+            }
+        } catch (Exception e) {
+            JsonObjectBuilder responseBuilder = Json.createObjectBuilder();
+            responseBuilder.add("message", "Failed to add country: " + e.getMessage());
+            return Response.status(Response.Status.BAD_REQUEST).entity(responseBuilder.build().toString()).build();
+        }
     }
 }

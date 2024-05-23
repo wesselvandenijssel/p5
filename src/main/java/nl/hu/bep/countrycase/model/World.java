@@ -82,4 +82,28 @@ public class World {
 		return null;
 	}
 
+	/**
+	 * Adds a country to the list if a country with the same code doesn't exist.
+	 * @param code the country code
+	 * @param iso3 the iso3 code
+	 * @param name the name of the country
+	 * @param capital the capital city
+	 * @param continent the continent
+	 * @param region the region
+	 * @param surface the surface area
+	 * @param population the population
+	 * @param government the government type
+	 * @param latitude the latitude
+	 * @param longitude the longitude
+	 * @return true if the country was added, false if a country with the same code already exists
+	 */
+	public boolean addCountry(String code, String iso3, String name, String capital, String continent, String region, double surface, int population, String government, double latitude, double longitude) {
+		if (getCountryByCode(code) != null) {
+			return false; // Country with the same code already exists
+		}
+		Country newCountry = new Country(code, iso3, name, capital, continent, region, surface, population, government, latitude, longitude);
+		allCountries.add(newCountry);
+		return true;
+	}
+
 }
