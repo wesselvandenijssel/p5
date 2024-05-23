@@ -35,7 +35,7 @@ public class World {
 		allCountries.add(new Country("AR", "ARG", "Argentina", "Buenos Aires", "South America", "South America", 2780400.00, 37032000, "Federal Republic", -34.36, -58.23));
 		allCountries.add(new Country("KZ", "KAZ", "Kazakstan", "Astana", "Asia", "Southern and Central Asia", 2724900.00, 16223000, "Republic", 51.10, 71.26));
 	}
-	
+
 	public List<Country> getAllCountries() {
 		return allCountries;
 	}
@@ -74,7 +74,12 @@ public class World {
 	 * @return the country by code or null
 	 */
 	public Country getCountryByCode(String code) {
-
+		for (Country country : allCountries) {
+			if (country.getCode().equalsIgnoreCase(code)) {
+				return country;
+			}
+		}
 		return null;
 	}
+
 }
