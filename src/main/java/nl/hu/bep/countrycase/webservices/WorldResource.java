@@ -26,8 +26,7 @@ public class WorldResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllCountries() {
-        JsonArrayBuilder jab = buildCountryArray(world.getAllCountries());
-        return Response.ok(jab.build().toString()).build();
+        return Response.ok(world.getAllCountries()).build();
     }
 
     @GET
@@ -38,24 +37,21 @@ public class WorldResource {
         if (country == null) {
             return Response.status(Response.Status.NOT_FOUND).build();
         }
-        JsonObjectBuilder job = buildCountryObject(country);
-        return Response.ok(job.build().toString()).build();
+        return Response.ok(buildCountryObject(country)).build();
     }
 
     @GET
     @Path("/largestsurfaces")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLargestSurfaces() {
-        JsonArrayBuilder jab = buildCountryArray(world.get10LargestSurfaces());
-        return Response.ok(jab.build().toString()).build();
+        return Response.ok(world.get10LargestSurfaces()).build();
     }
 
     @GET
     @Path("/largestpopulations")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getLargestPopulations() {
-        JsonArrayBuilder jab = buildCountryArray(world.get10LargestPopulations());
-        return Response.ok(jab.build().toString()).build();
+        return Response.ok(world.get10LargestPopulations()).build();
     }
 
     @POST
